@@ -10,26 +10,27 @@
 #          access mechanism made for this purpose - SSH. The access is easier to mange and you don't need to open up
 #          an additional port on your firewall just for Docker access.
 #
-# USAGE:   fodo <hostname>
+# USAGE:   fodo <hostname> [port]
 #
 
 set -e
-if [ "$#" -ne 1 ]; then
-    echo "Usagge: fodo <hostname>"
+if [ "$#" -ne 1 ] && [ "$#" -ne 2 ]; then
+    echo "Usagge: $0 <hostname> [port]"
     exit 1
 fi
 
+SSH_PORT=${2:-22}
 TARGET_DIR=$(mktemp --directory --tmpdir dockerssh-$1-XXXXXXXX)
 DOCKER_SOCKET=$TARGET_DIR/docker.sock
 CONTROL_SSH_SOCKET=$TARGET_DIR/ssh-control.sock
 
 function cleanup {
-	ssh -S $CONTROL_SSH_SOCKET -O exit root@$1
+	ssh -S $CONTROL_SSH_SOCKET -O exit -p $SSH_PORT root@$1
 	rm -r $TARGET_DIR
 }
 trap cleanup EXIT
 
-ssh -M -S $CONTROL_SSH_SOCKET -fnNT -o StreamLocalBindUnlink=yes -o ExitOnForwardFailure=yes -L $DOCKER_SOCKET:/var/run/docker.sock root@$1
+ssh -M -S $CONTROL_SSH_SOCKET -fnNT -o StreamLocalBindUnlink=yes -o ExitOnForwardFailure=yes -L $DOCKER_SOCKET:/var/run/docker.sock -p $SSH_PORT root@$1
 
 export DOCKER_HOST=unix://$DOCKER_SOCKET
 export DOCKER_MACHINE_NAME=$(docker info --format '{{ .Name }}')

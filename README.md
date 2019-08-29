@@ -8,6 +8,12 @@ The main objective is not to rely on Docker's TLS endpoint for remote control bu
 access mechanism made for this purpose - SSH. The access is easier to mange and you don't need to open up
 an additional port on your firewall just for Docker access.
 
+# Usage
+
+```sh
+$ fodo <hostname> [port]
+```
+
 # Authors
 * Pavol Ivanko
 * Jozef Knaperek
