@@ -30,7 +30,7 @@ function cleanup {
 }
 trap cleanup EXIT
 
-ssh -M -S $CONTROL_SSH_SOCKET -fnNT -o StreamLocalBindUnlink=yes -o ExitOnForwardFailure=yes -L $DOCKER_SOCKET:/var/run/docker.sock -p $SSH_PORT root@$1
+ssh -M -S $CONTROL_SSH_SOCKET -fnNT -o StreamLocalBindUnlink=yes -o ExitOnForwardFailure=yes -o ServerAliveInterval=15 -o ServerAliveCountMax=600 -L $DOCKER_SOCKET:/var/run/docker.sock -p $SSH_PORT root@$1
 
 export DOCKER_HOST=unix://$DOCKER_SOCKET
 export DOCKER_MACHINE_NAME=$(docker info --format '{{ .Name }}')
